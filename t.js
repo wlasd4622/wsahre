@@ -11,14 +11,14 @@ function sleep() {
 }
 
 async function getFundList(index = 1) {
-    if (index >= 10) {
+    if (index >= 100) {
         return false;
     }
     console.log('page', index);
     let result = null;
     try {
         //http://fund.eastmoney.com/data/fbsfundranking.html#tct;c0;r;szzf;ddesc;pn50;
-        result = await axios.get(`http://fund.eastmoney.com/data/rankhandler.aspx?op=ph&dt=fb&ft=ct&rs=&gs=0&sc=zzf&st=desc&pi=${index}&pn=50&v=0.8834870984739347`);
+        result = await axios.get(`http://fund.eastmoney.com/data/rankhandler.aspx?op=ph&dt=kf&ft=all&rs=&gs=0&sc=zzf&st=desc&sd=2018-05-19&ed=2019-05-19&qdii=&tabSubtype=,,,,,&pi=${index}&pn=50&dx=1&v=0.20148154403473617`);
     } catch (err) {
         console.log(err);
     }
@@ -36,9 +36,9 @@ async function getFundList(index = 1) {
 
 function statistics() {
     console.log('-statistics-');
-    let oList = list
+    // let oList = list
     list = [];
-    // let content = JSON.parse(fs.readFileSync('./temp/list.json'));
+    oList = JSON.parse(fs.readFileSync('./temp/list.json'));
     oList.map(item => {
         let arr = item.split(',')
         let data = {
@@ -57,7 +57,7 @@ function statistics() {
             '今年来': arr[13],
             '成立来': arr[14]
         }
-        if (data['近1年']&&data.type==='ETF-场内') {
+        if (data['近1年']) {
             list.push(data)
         }
     })
@@ -125,7 +125,7 @@ function statistics() {
     })
 
     //筛选出历史成绩较好的基金
-    let quality = Object.keys(screenCode).sort((k1, k2) => screenCode[k2] - screenCode[k1]).splice(0, 6);
+    let quality = Object.keys(screenCode).sort((k1, k2) => screenCode[k2] - screenCode[k1]).splice(0, 60);
     //根据筛选出来的优质基金，再进行近一周排名的排序选出靠前的两支基金
     let newList = [];
     quality.map(code => {
@@ -133,14 +133,14 @@ function statistics() {
     })
     //排序历史成绩较好的基金 近1周
     let newCode = []
-    newList.sort((item, item1) => item1['近1月'] - item['近1月']).map(item => {
+    newList.sort((item, item1) => item1['近一周'] - item['近一周']).map(item => {
         newCode.push(item.code)
     })
-    console.log('优质基金：', newCode);
+    console.log('优质基金：', newCode.splice(0, 10));
 }
 
 (async () => {
-    await getFundList()
+    // await getFundList()
     // fs.writeFileSync('./temp/list.json', JSON.stringify(list))
     statistics()
     console.log('-END-');
