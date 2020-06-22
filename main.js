@@ -11,14 +11,18 @@ function sleep() {
 }
 
 async function getFundList(index = 1) {
-    if (index >= 10) {
+    if (index > 11) {
         return false;
     }
     console.log('page', index);
     let result = null;
     try {
         //http://fund.eastmoney.com/data/fbsfundranking.html#tct;c0;r;szzf;ddesc;pn50;
-        result = await axios.get(`http://fund.eastmoney.com/data/rankhandler.aspx?op=ph&dt=fb&ft=ct&rs=&gs=0&sc=zzf&st=desc&pi=${index}&pn=50&v=0.8834870984739347`);
+        result = await axios.get(`http://fund.eastmoney.com/data/rankhandler.aspx?op=ph&dt=fb&ft=ct&rs=&gs=0&sc=zzf&st=desc&pi=${index}&pn=50&v=0.3797136626049107`, {
+            headers: {
+                Referer: 'http://fund.eastmoney.com/data/fundranking.html'
+            }
+        });
     } catch (err) {
         console.log(err);
     }
@@ -57,7 +61,7 @@ function statistics() {
             '今年来': arr[13],
             '成立来': arr[14]
         }
-        if (data['近1年']&&data.type==='ETF-场内') {
+        if (data['近1年'] && data.type === 'ETF-场内') {
             list.push(data)
         }
     })
@@ -126,7 +130,7 @@ function statistics() {
 
     //筛选出历史成绩较好的基金
     let quality = Object.keys(screenCode).sort((k1, k2) => screenCode[k2] - screenCode[k1]).splice(0, 6);
-    //根据筛选出来的优质基金，再进行近一周排名的排序选出靠前的两支基金
+    //根据筛选出来  的优质基金，再进行近一周排名的排序选出靠前的两支基金
     let newList = [];
     quality.map(code => {
         newList.push(list.find(item => item.code === code));
@@ -141,7 +145,9 @@ function statistics() {
 
 (async () => {
     await getFundList()
-    // fs.writeFileSync('./temp/list.json', JSON.stringify(list))
+    fs.writeFileSync('./temp/list.json', JSON.stringify(list))
     statistics()
     console.log('-END-');
 })();
+
+

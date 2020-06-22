@@ -13,3 +13,4 @@ developer.config.js
 *.ntvs*
 *.njsproj
 *.sln
+catch/*
